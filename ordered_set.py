@@ -6,7 +6,7 @@
 # Date: 23-Sep-2026
 # Authors:
 #           A01754754 Alexis Maximiliano Alva Martínez
-#           A01777771 Wade Wilson
+#           A01754717 Nestor Daniel
 #----------------------------------------------------------
 
 from typing import cast
