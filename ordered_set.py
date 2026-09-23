@@ -30,7 +30,7 @@ class OrderedSet[T]:
     __sentinel: OrderedSet.Node[T]
     __count: int
 
-    # Complexity: O(N), N = len(values)
+    # Complexity: O(N^2), N = len(values)
     def __init__(self, values: Iterable[T] = ()) -> None:
         self.__sentinel = OrderedSet.Node(cast(T, None))
         self.__count = 0
@@ -81,6 +81,12 @@ class OrderedSet[T]:
                 return
             current = current.next
 
+    # Complexity: O(N)
+    def remove(self, value: T) -> None:
+        if value not in self:
+            raise KeyError(value)
+        self.discard(value)
+
     # Complexity: O(N*M) where N = len(self) and M = len(other)
     def __eq__(self, other: object) -> bool:
         if self is other:
@@ -106,6 +112,25 @@ class OrderedSet[T]:
         return True
 
     # Complexity: O(N*M) where N = len(self) and M = len(other)
+    def __lt__(self, other: OrderedSet[T]) -> bool:
+        return self <= other and len(self) < len(other)
+
+    # Complexity: O(N*M) where N = len(self) and M = len(other)
+    def __ge__(self, other: OrderedSet[T]) -> bool:
+        return other <= self
+
+    # Complexity: O(N*M) where N = len(self) and M = len(other)
+    def __gt__(self, other: OrderedSet[T]) -> bool:
+        return other < self
+
+    # Complexity: O(N*M) where N = len(self) and M = len(other)
+    def isdisjoint(self, other: OrderedSet[T]) -> bool:
+        for elem in self:
+            if elem in other:
+                return False
+        return True
+
+    # Complexity: O(N*M) where N = len(self) and M = len(other)
     def __and__(self, other: OrderedSet[T]) -> OrderedSet[T]:
         result: OrderedSet[T] = OrderedSet()
         for elem in self:
@@ -113,6 +138,47 @@ class OrderedSet[T]:
                 result.add(elem)
         return result
 
+    # Complexity: O((N+M)^2) where N = len(self) and M = len(other)
+    def __or__(self, other: OrderedSet[T]) -> OrderedSet[T]:
+        result: OrderedSet[T] = OrderedSet(self)
+        for elem in other:
+            result.add(elem)
+        return result
+
+    # Complexity: O(N*(N+M)) where N = len(self) and M = len(other)
+    def __sub__(self, other: OrderedSet[T]) -> OrderedSet[T]:
+        result: OrderedSet[T] = OrderedSet()
+        for elem in self:
+            if elem not in other:
+                result.add(elem)
+        return result
+
+    # Complexity: O((N+M)^2) where N = len(self) and M = len(other)
+    def __xor__(self, other: OrderedSet[T]) -> OrderedSet[T]:
+        result: OrderedSet[T] = OrderedSet()
+        for elem in self:
+            if elem not in other:
+                result.add(elem)
+        for elem in other:
+            if elem not in self:
+                result.add(elem)
+        return result
+
+    # Complexity: O(1)
+    def clear(self) -> None:
+        self.__sentinel.next = self.__sentinel
+        self.__sentinel.prev = self.__sentinel
+        self.__count = 0
+
+    # Complexity: O(1)
+    def pop(self) -> T:
+        if not self:
+            raise KeyError('pop from an empty set')
+        last: OrderedSet.Node[T] = self.__sentinel.prev
+        last.prev.next = self.__sentinel
+        self.__sentinel.prev = last.prev
+        self.__count -= 1
+        return last.info
 
 if __name__ == '__main__':
     a: OrderedSet[int] = OrderedSet([4, 8, 15, 16, 23])
